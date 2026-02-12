@@ -30,7 +30,6 @@
       padding: 16px;
     }
 
-    /* FULL-SCREEN CONFETTI CANVAS */
     #confettiCanvas {
       position: fixed;
       inset: 0;
@@ -91,7 +90,10 @@
       background: var(--yes);
       color: #fff;
     }
-    #yesBtn:hover { background: var(--yesHover); }
+
+    #yesBtn:hover {
+      background: var(--yesHover);
+    }
 
     #noBtn {
       left: 62%;
@@ -99,10 +101,18 @@
       color: #111827;
     }
 
+    /* Hint Fade Animation */
     .hint {
       margin-top: 10px;
       font-size: 13px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .hint.show {
       opacity: .7;
+      visibility: visible;
     }
 
     .result {
@@ -116,10 +126,17 @@
       margin: 10px 0;
     }
 
-    .fireworks {
-      width: min(380px, 90vw);
-      margin: 0 auto;
+    /* IMAGE FITS INSIDE CARD */
+    .result img {
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      border-radius: 16px;
+      margin-top: 10px;
       display: block;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 12px 30px rgba(0,0,0,.15);
     }
 
     @keyframes pop {
@@ -133,24 +150,14 @@
   <canvas id="confettiCanvas"></canvas>
 
   <main class="card">
-    <!-- ANIMAL WITH HEART -->
+
     <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="fur" x1="0" x2="1">
           <stop offset="0" stop-color="#f7c7a1"/>
           <stop offset="1" stop-color="#f2a97b"/>
         </linearGradient>
-        <linearGradient id="heart" x1="0" x2="1">
-          <stop offset="0" stop-color="#ff4d7d"/>
-          <stop offset="1" stop-color="#ff1f68"/>
-        </linearGradient>
       </defs>
-
-      <path d="M250 50 C250 33 270 25 282 38
-               C294 25 314 33 314 50
-               C314 78 282 92 282 106
-               C282 92 250 78 250 50Z"
-            fill="url(#heart)"/>
 
       <path d="M90 120 C90 70 140 40 190 60
                C240 40 290 70 290 120
@@ -158,17 +165,8 @@
                C140 210 90 180 90 120Z"
             fill="url(#fur)"/>
 
-      <path d="M110 92 L95 55 L140 78 Z" fill="#f2a97b"/>
-      <path d="M270 92 L285 55 L240 78 Z" fill="#f2a97b"/>
-
       <circle cx="160" cy="130" r="8"/>
       <circle cx="220" cy="130" r="8"/>
-
-      <path d="M190 144 C186 144 182 148 182 152
-               C182 160 190 164 190 170
-               C190 164 198 160 198 152
-               C198 148 194 144 190 144Z"
-            fill="#ff7aa2"/>
     </svg>
 
     <h1>Narminaki, will you be my valentine?</h1>
@@ -178,13 +176,13 @@
       <button id="noBtn">No</button>
     </section>
 
-    <!-- HINT -->
     <div class="hint" id="hint">“No” is not an option</div>
 
     <section class="result" id="result">
       <h2>YAY! 🎉</h2>
       <img src="image.jpg" alt="image">
     </section>
+
   </main>
 
   <script>
@@ -194,7 +192,7 @@
     const result = document.getElementById("result");
     const hint = document.getElementById("hint");
 
-    /* ---------- CONFETTI ---------- */
+    /* CONFETTI */
     const confettiCanvas = document.getElementById("confettiCanvas");
 
     function resizeConfettiCanvas() {
@@ -207,7 +205,6 @@
 
     resizeConfettiCanvas();
     window.addEventListener("resize", resizeConfettiCanvas);
-    window.addEventListener("orientationchange", () => setTimeout(resizeConfettiCanvas, 150));
 
     const confettiInstance = confetti.create(confettiCanvas, {
       resize: false,
@@ -239,14 +236,14 @@
       }, 300);
     }
 
-    /* ---------- YES BUTTON GROWS ---------- */
+    /* YES BUTTON GROWS */
     let yesScale = 1;
     function growYes() {
       yesScale = Math.min(2.2, yesScale + 0.1);
       yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
     }
 
-    /* ---------- NO BUTTON RUNS AWAY ---------- */
+    /* NO BUTTON MOVES */
     function clamp(n, min, max) {
       return Math.max(min, Math.min(max, n));
     }
@@ -283,12 +280,16 @@
       if (d < 140) moveNo(e.clientX, e.clientY);
     });
 
-    noBtn.addEventListener("click", e => e.preventDefault());
+    /* SHOW HINT WITH FADE */
+    noBtn.addEventListener("click", e => {
+      e.preventDefault();
+      hint.classList.add("show");
+    });
 
-    /* ---------- YES CLICK ---------- */
+    /* YES CLICK */
     yesBtn.addEventListener("click", () => {
       zone.style.display = "none";
-      hint.style.display = "none";     // HIDE THE HINT
+      hint.classList.remove("show");
       result.style.display = "block";
       resizeConfettiCanvas();
       fullScreenConfetti();
@@ -296,9 +297,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
