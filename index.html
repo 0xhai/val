@@ -101,7 +101,6 @@
       color: #111827;
     }
 
-    /* HINT - hidden by default */
     .hint {
       margin-top: 10px;
       font-size: 13px;
@@ -120,7 +119,6 @@
       margin: 10px 0;
     }
 
-    /* ✅ ONLY CHANGE: make image fit inside card */
     .result img {
       max-width: 75%;
       height: auto;
@@ -177,10 +175,8 @@
       <button id="noBtn">No</button>
     </section>
 
-    <!-- HINT -->
     <div class="hint" id="hint">“No” is not an option</div>
 
-    <!-- RESULT -->
     <section class="result" id="result">
       <h2>YAY! 🎉</h2>
       <img src="image.jpg" alt="image">
@@ -195,7 +191,6 @@
     const result = document.getElementById("result");
     const hint = document.getElementById("hint");
 
-    /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
 
     function resizeConfettiCanvas() {
@@ -216,7 +211,6 @@
 
     function fullScreenConfetti() {
       const end = Date.now() + 1600;
-
       (function frame() {
         confettiInstance({
           particleCount: 12,
@@ -227,7 +221,6 @@
         });
         if (Date.now() < end) requestAnimationFrame(frame);
       })();
-
       setTimeout(() => {
         confettiInstance({
           particleCount: 300,
@@ -260,13 +253,13 @@
       dx /= mag;
       dy /= mag;
 
-      let newLeft = (noRect.left - z.left) + dx * 160;
-      let newTop  = (noRect.top - z.top) + dy * 160;
+      let jumpDistance = 160;
+      let newLeft = (noRect.left - z.left) + dx * jumpDistance;
+      let newTop  = (noRect.top - z.top) + dy * jumpDistance;
 
       newLeft = clamp(newLeft, 0, z.width - noRect.width);
       newTop  = clamp(newTop, 0, z.height - noRect.height);
 
-      // Prevent overlap with YES button
       const futureNo = {
         left: z.left + newLeft,
         right: z.left + newLeft + noRect.width,
@@ -299,13 +292,17 @@
       if (d < 140) moveNo(e.clientX, e.clientY);
     });
 
-    // Mobile touch
+    // Mobile: continuous dodge
     zone.addEventListener("touchstart", e => {
       const touch = e.touches[0];
       moveNo(touch.clientX, touch.clientY);
     });
+    zone.addEventListener("touchmove", e => {
+      const touch = e.touches[0];
+      moveNo(touch.clientX, touch.clientY);
+    });
 
-    // If someone ACTUALLY tries clicking
+    // Show hint if someone tries to press NO
     noBtn.addEventListener("pointerdown", e => {
       e.preventDefault();
       hint.style.display = "block";
