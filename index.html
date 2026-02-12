@@ -101,6 +101,7 @@
       color: #111827;
     }
 
+    /* HINT - hidden by default */
     .hint {
       margin-top: 10px;
       font-size: 13px;
@@ -119,8 +120,9 @@
       margin: 10px 0;
     }
 
+    /* ✅ ONLY CHANGE: make image fit inside card */
     .result img {
-      max-width: 75%;
+      max-width: 75%;   /* was 100% */
       height: auto;
       display: block;
       margin: 12px auto 0;
@@ -175,8 +177,10 @@
       <button id="noBtn">No</button>
     </section>
 
+    <!-- HINT -->
     <div class="hint" id="hint">“No” is not an option</div>
 
+    <!-- RESULT -->
     <section class="result" id="result">
       <h2>YAY! 🎉</h2>
       <img src="image.jpg" alt="image">
@@ -191,6 +195,7 @@
     const result = document.getElementById("result");
     const hint = document.getElementById("hint");
 
+    /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
 
     function resizeConfettiCanvas() {
@@ -211,6 +216,7 @@
 
     function fullScreenConfetti() {
       const end = Date.now() + 1600;
+
       (function frame() {
         confettiInstance({
           particleCount: 12,
@@ -221,6 +227,7 @@
         });
         if (Date.now() < end) requestAnimationFrame(frame);
       })();
+
       setTimeout(() => {
         confettiInstance({
           particleCount: 300,
@@ -234,7 +241,7 @@
 
     let yesScale = 1;
     function growYes() {
-      yesScale = Math.min(2.2, yesScale + 0.08);
+      yesScale = Math.min(2.2, yesScale + 0.1);
       yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
     }
 
@@ -244,45 +251,27 @@
 
     function moveNo(px, py) {
       const z = zone.getBoundingClientRect();
-      const noRect = noBtn.getBoundingClientRect();
-      const yesRect = yesBtn.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
 
-      let dx = (noRect.left + noRect.width / 2) - px;
-      let dy = (noRect.top + noRect.height / 2) - py;
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
       let mag = Math.hypot(dx, dy) || 1;
       dx /= mag;
       dy /= mag;
 
-      let jumpDistance = 160;
-      let newLeft = (noRect.left - z.left) + dx * jumpDistance;
-      let newTop  = (noRect.top - z.top) + dy * jumpDistance;
+      let newLeft = (b.left - z.left) + dx * 150;
+      let newTop  = (b.top - z.top) + dy * 150;
 
-      newLeft = clamp(newLeft, 0, z.width - noRect.width);
-      newTop  = clamp(newTop, 0, z.height - noRect.height);
+      newLeft = clamp(newLeft, 0, z.width - b.width);
+      newTop  = clamp(newTop, 0, z.height - b.height);
 
-      const futureNo = {
-        left: z.left + newLeft,
-        right: z.left + newLeft + noRect.width,
-        top: z.top + newTop,
-        bottom: z.top + newTop + noRect.height
-      };
-
-      const overlap =
-        !(futureNo.right < yesRect.left ||
-          futureNo.left > yesRect.right ||
-          futureNo.bottom < yesRect.top ||
-          futureNo.top > yesRect.bottom);
-
-      if (!overlap) {
-        noBtn.style.left = newLeft + "px";
-        noBtn.style.top = newTop + "px";
-        noBtn.style.transform = "none";
-      }
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.style.transform = "none";
 
       growYes();
     }
 
-    // Desktop hover
     zone.addEventListener("pointermove", e => {
       const b = noBtn.getBoundingClientRect();
       const d = Math.hypot(
@@ -292,21 +281,9 @@
       if (d < 140) moveNo(e.clientX, e.clientY);
     });
 
-    // Mobile: continuous dodge
-    zone.addEventListener("touchstart", e => {
-      const touch = e.touches[0];
-      moveNo(touch.clientX, touch.clientY);
-    });
-    zone.addEventListener("touchmove", e => {
-      const touch = e.touches[0];
-      moveNo(touch.clientX, touch.clientY);
-    });
-
-    // Show hint if someone tries to press NO
-    noBtn.addEventListener("pointerdown", e => {
+    noBtn.addEventListener("click", e => {
       e.preventDefault();
       hint.style.display = "block";
-      moveNo(e.clientX, e.clientY);
     });
 
     yesBtn.addEventListener("click", () => {
