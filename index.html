@@ -17,7 +17,7 @@
       --yesHover: #ff1f68;
       --letterBg: #fff0f6;
       --letterShadow: rgba(0,0,0,0.15);
-      --flapColor: #ffe0eb;
+      --flapColor: #ffcee0;
       --innerLetter: #fff0f6;
     }
 
@@ -73,7 +73,20 @@
       transform-origin: top center;
     }
 
-    /* Top flap */
+    /* Inner triangle (folded letter) */
+    .inner-triangle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 50% solid transparent;
+      border-right: 50% solid transparent;
+      border-bottom: 50px solid var(--innerLetter);
+      z-index: 2;
+    }
+
+    /* Flap */
     .flap {
       position: absolute;
       top: 0;
@@ -82,37 +95,23 @@
       height: 0;
       border-left: 50% solid transparent;
       border-right: 50% solid transparent;
-      border-bottom: 50px solid #ffcee0;
+      border-bottom: 50px solid var(--flapColor);
       transform-origin: top center;
       transition: transform 0.6s ease;
       z-index: 3;
     }
 
-    /* Inner triangle of letter */
-    .envelope::after {
-      content: '';
-      position: absolute;
-      top: 30px; /* below flap */
-      left: 0;
-      width: 0;
-      height: 0;
-      border-left: 50% solid transparent;
-      border-right: 50% solid transparent;
-      border-top: 60px solid #fff0f6;
-      z-index: 1;
-    }
-
     .envelope p {
       font-size: clamp(18px, 4vw, 22px);
       margin: 6px 0;
-      z-index: 2;
+      z-index: 4;
     }
 
     .clickHint {
       font-size: 14px;
       opacity: 0.7;
       margin-top: 12px;
-      z-index: 2;
+      z-index: 4;
     }
 
     /* Main Card */
@@ -218,6 +217,7 @@
   <!-- Letter Overlay (Envelope) -->
   <div id="letterOverlay">
     <div class="envelope">
+      <div class="inner-triangle"></div>
       <div class="flap"></div>
       <p>Hey user! You have a letter!</p>
       <p class="clickHint">Click to open 💌</p>
@@ -226,7 +226,6 @@
 
   <!-- Main Card -->
   <main class="card">
-
     <!-- Cute SVG -->
     <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -269,7 +268,6 @@
       <h2>YAY! 🎉</h2>
       <img src="image.jpg" alt="image">
     </section>
-
   </main>
 
   <script>
@@ -383,7 +381,7 @@
       fullScreenConfetti();
     });
 
-    /* ---------- LETTER OVERLAY WITH FLAP ANIMATION ---------- */
+    /* ---------- LETTER OVERLAY CLICK ---------- */
     letterOverlay.addEventListener("click", () => {
       flap.style.transform = "rotateX(-180deg)";
       envelope.style.transition = "transform 0.6s ease 0.6s";
@@ -396,4 +394,3 @@
   </script>
 </body>
 </html>
-
