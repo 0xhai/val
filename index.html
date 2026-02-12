@@ -122,7 +122,7 @@
 
     /* ✅ ONLY CHANGE: make image fit inside card */
     .result img {
-      max-width: 75%;   /* was 100% */
+      max-width: 75%;
       height: auto;
       display: block;
       margin: 12px auto 0;
@@ -241,7 +241,7 @@
 
     let yesScale = 1;
     function growYes() {
-      yesScale = Math.min(2.2, yesScale + 0.1);
+      yesScale = Math.min(2.2, yesScale + 0.08);
       yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
     }
 
@@ -251,27 +251,45 @@
 
     function moveNo(px, py) {
       const z = zone.getBoundingClientRect();
-      const b = noBtn.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
 
-      let dx = (b.left + b.width / 2) - px;
-      let dy = (b.top + b.height / 2) - py;
+      let dx = (noRect.left + noRect.width / 2) - px;
+      let dy = (noRect.top + noRect.height / 2) - py;
       let mag = Math.hypot(dx, dy) || 1;
       dx /= mag;
       dy /= mag;
 
-      let newLeft = (b.left - z.left) + dx * 150;
-      let newTop  = (b.top - z.top) + dy * 150;
+      let newLeft = (noRect.left - z.left) + dx * 160;
+      let newTop  = (noRect.top - z.top) + dy * 160;
 
-      newLeft = clamp(newLeft, 0, z.width - b.width);
-      newTop  = clamp(newTop, 0, z.height - b.height);
+      newLeft = clamp(newLeft, 0, z.width - noRect.width);
+      newTop  = clamp(newTop, 0, z.height - noRect.height);
 
-      noBtn.style.left = newLeft + "px";
-      noBtn.style.top = newTop + "px";
-      noBtn.style.transform = "none";
+      // Prevent overlap with YES button
+      const futureNo = {
+        left: z.left + newLeft,
+        right: z.left + newLeft + noRect.width,
+        top: z.top + newTop,
+        bottom: z.top + newTop + noRect.height
+      };
+
+      const overlap =
+        !(futureNo.right < yesRect.left ||
+          futureNo.left > yesRect.right ||
+          futureNo.bottom < yesRect.top ||
+          futureNo.top > yesRect.bottom);
+
+      if (!overlap) {
+        noBtn.style.left = newLeft + "px";
+        noBtn.style.top = newTop + "px";
+        noBtn.style.transform = "none";
+      }
 
       growYes();
     }
 
+    // Desktop hover
     zone.addEventListener("pointermove", e => {
       const b = noBtn.getBoundingClientRect();
       const d = Math.hypot(
@@ -281,9 +299,17 @@
       if (d < 140) moveNo(e.clientX, e.clientY);
     });
 
-    noBtn.addEventListener("click", e => {
+    // Mobile touch
+    zone.addEventListener("touchstart", e => {
+      const touch = e.touches[0];
+      moveNo(touch.clientX, touch.clientY);
+    });
+
+    // If someone ACTUALLY tries clicking
+    noBtn.addEventListener("pointerdown", e => {
       e.preventDefault();
       hint.style.display = "block";
+      moveNo(e.clientX, e.clientY);
     });
 
     yesBtn.addEventListener("click", () => {
@@ -296,4 +322,3 @@
   </script>
 </body>
 </html>
-
