@@ -69,11 +69,11 @@
       align-items: center;
       text-align: center;
       animation: pop .35s ease;
+      transform-origin: top center;
     }
 
     /* Flap triangle */
-    .envelope::before {
-      content: '';
+    .flap {
       position: absolute;
       top: 0;
       left: 0;
@@ -82,6 +82,9 @@
       border-left: 50% solid transparent;
       border-right: 50% solid transparent;
       border-bottom: 50px solid var(--flapColor);
+      transform-origin: top center;
+      transition: transform 0.6s ease;
+      z-index: 2;
     }
 
     .envelope p {
@@ -106,7 +109,7 @@
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 18px 60px rgba(0,0,0,.15);
-      display: none; /* hidden until envelope clicked */
+      display: none; /* hidden until envelope opened */
     }
 
     .art {
@@ -200,6 +203,7 @@
   <!-- Letter Overlay (Envelope) -->
   <div id="letterOverlay">
     <div class="envelope">
+      <div class="flap"></div>
       <p>Hey user! You have a letter!</p>
       <p class="clickHint">Click to open 💌</p>
     </div>
@@ -261,6 +265,8 @@
     const hint = document.getElementById("hint");
     const letterOverlay = document.getElementById("letterOverlay");
     const card = document.querySelector(".card");
+    const flap = document.querySelector(".flap");
+    const envelope = document.querySelector(".envelope");
 
     /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
@@ -362,10 +368,15 @@
       fullScreenConfetti();
     });
 
-    /* ---------- LETTER OVERLAY ---------- */
+    /* ---------- LETTER OVERLAY WITH ANIMATION ---------- */
     letterOverlay.addEventListener("click", () => {
-      letterOverlay.style.display = "none";
-      card.style.display = "block";
+      flap.style.transform = "rotateX(-180deg)";
+      envelope.style.transition = "transform 0.6s ease 0.6s";
+      envelope.style.transform = "translateY(50px) scale(0.95)";
+      setTimeout(() => {
+        letterOverlay.style.display = "none";
+        card.style.display = "block";
+      }, 1200);
     });
   </script>
 </body>
